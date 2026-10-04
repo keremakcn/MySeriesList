@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Settings · MySeriesList{% endblock %}
+{% block content %}
+<div class="page-heading"><p class="eyebrow">MAKE YOURSELF AT HOME</p><h1>Your library.<br>Your own space.</h1><p class="muted">Discovery is ready. Keep your journal your own.</p></div>
+<div class="settings-grid">
+  <section class="panel connection-panel">
+    <div class="section-heading"><h2>Series discovery</h2><span class="status-pill success">No setup needed</span></div>
+    <h3>Ready to explore</h3>
+    <p class="muted">Search shows, explore the cast and browse seasons without a TMDB account or API key.</p>
+    <p class="help">Discovery uses our shared service and requires an internet connection. Your saved library, private notes and loaded episode progress stay on your device.</p>
+    <a class="button primary" href="/search">Explore series →</a>
+  </section>
+  <div class="settings-aside"><section class="panel"><span class="eyebrow">PRIVATE BY DESIGN</span><h2>Your thoughts.<br>Your device.</h2><p>Notes, ratings and episode progress stay in your personal library. They are not sent to TMDB.</p><p class="help">Discovery and remote posters need internet. Loaded episodes and your journal remain available offline.</p></section><section class="attribution"><h3>Powered by TMDB</h3><p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p><a class="external-link" href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer">Visit TMDB ↗</a></section></div>
+</div>
+{% endblock %}

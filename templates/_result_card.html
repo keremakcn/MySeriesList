@@ -1,0 +1,9 @@
+{% from '_components.html' import add_button with context %}
+<article class="card">
+  <a class="poster" href="{{ url_for('catalog',tid=item.id) }}" aria-label="Explore {{ item.name }}">
+    {% if image_url(item.poster_path) %}<img src="{{ image_url(item.poster_path) }}" alt="" loading="lazy">{% else %}<span class="poster-placeholder">TV SERIES<strong>{{ item.name[:1] }}</strong></span>{% endif %}
+    {% if item.vote_average %}<span class="badge">★ {{ '%.1f'|format(item.vote_average) }}</span>{% endif %}<span class="poster-hint">Explore series ↗</span>
+  </a>
+  <div class="card-body"><small>{{ (item.first_air_date or '')[:4] or 'Year unavailable' }} · TV series</small><h2><a href="{{ url_for('catalog',tid=item.id) }}">{{ item.name }}</a></h2>{% if item.roles %}<p class="credit-roles">{{ item.roles|join(', ') }}</p>{% endif %}<p class="summary">{{ item.overview or 'Discover this series and explore its seasons.' }}</p>
+  {{ add_button(item.id, members.get(item.id)) }}</div>
+</article>

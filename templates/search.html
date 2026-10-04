@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% from '_components.html' import add_button with context %}
+{% block title %}Discover · MySeriesList{% endblock %}
+{% block content %}
+<div class="page-heading"><p class="eyebrow">FIND YOUR NEXT CHAPTER</p><h1>Something worth<br>staying in for.</h1><p class="muted">Explore a series before making room for it in your library.</p></div>
+<form class="search-bar" action="/search" data-search-form><span aria-hidden="true">⌕</span><input id="search" name="q" value="{{ q }}" placeholder="Search series, from Severance to The Bear…" aria-label="Search TV shows" required maxlength="200"><button class="primary" data-busy-label="Searching…">Search</button></form>
+{% if error %}<div class="notice error" role="alert"><span>{{ error }}</span><a class="text-link" href="{{ url_for('search', q=q, page=page) }}">Try again →</a></div>
+{% elif q %}<div class="section-heading"><h2>Results for “{{ q }}”</h2><span>{{ items|length }} on this page{% if pages %} · Page {{ page }} of {{ pages }}{% endif %}</span></div>{% endif %}
+<div class="grid">
+{% for item in items %}
+{% include "_result_card.html" %}
+{% else %}{% if not error %}<section class="empty"><span class="empty-symbol" aria-hidden="true">⌕</span><h2>{{ 'No series found.' if q else 'Your next favorite is out there.' }}</h2><p>{{ 'Try another title, the original name, or fewer words.' if q else 'Search a title to explore the cast, seasons and episodes. Add it only when you are ready.' }}</p>{% if not q %}<div class="chips suggestions"><a href="/search?q=Severance">Severance ↗</a><a href="/search?q=The+Bear">The Bear ↗</a><a href="/search?q=Dark">Dark ↗</a></div>{% endif %}</section>{% endif %}{% endfor %}
+</div>
+{% if pages>1 %}<nav class="pagination" aria-label="Search pages">{% if page>1 %}<a class="button" href="{{ url_for('search',q=q,page=page-1) }}">← Previous</a>{% endif %}<span>Page {{ page }} / {{ pages }}</span>{% if page<pages %}<a class="button" href="{{ url_for('search',q=q,page=page+1) }}">Next →</a>{% endif %}</nav>{% endif %}
+{% endblock %}

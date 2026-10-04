@@ -1,0 +1,45 @@
+{% macro csrf() -%}<input type="hidden" name="csrf" value="{{ session.csrf }}">{%- endmacro %}
+{% macro add_button(tid, sid=none) %}
+  {% if sid %}<a class="button success" href="{{ url_for('detail',sid=sid) }}">✓ In your library · Open</a>
+  {% else %}<form method="post" action="{{ url_for('add',tid=tid) }}" data-add-form>
+    {{ csrf() }}<button class="primary" data-busy-label="Adding…">+ Want to watch</button>
+    <span class="form-message" role="status"></span>
+  </form>{% endif %}
+{% endmacro %}
+{% macro hero(item) %}
+<div class="hero">
+  <div class="hero-art">{% if image_url(item.poster) %}<img src="{{ image_url(item.poster,'w500') }}" alt="{{ item.title }} poster">{% else %}<span class="poster-placeholder">SERIES<br><strong>{{ item.title[:1] }}</strong></span>{% endif %}</div>
+  <div class="hero-copy">
+    <p class="eyebrow">TV SERIES{% if item.year %} · {{ item.year }}{% endif %}</p>
+    <h1>{{ item.title }}</h1>
+    {% if item.meta.get('tagline') %}<p class="tagline">{{ item.meta.tagline }}</p>{% endif %}
+    <div class="chips">
+      {% for genre in item.meta.get('genres') or [] %}<span>{{ genre.name }}</span>{% endfor %}
+      {% if item.meta.get('status') %}<span>{{ item.meta.status }}</span>{% endif %}
+      {% if item.meta.get('vote_average') %}<span class="score">★ {{ '%.1f'|format(item.meta.vote_average) }} <small>TMDB</small></span>{% endif %}
+    </div>
+    <p class="description">{{ item.overview or 'No synopsis available yet.' }}</p>
+    <div class="facts">
+      {% if item.meta.get('number_of_seasons') %}<span><strong>{{ item.meta.number_of_seasons }}</strong> seasons</span>{% endif %}
+      {% if item.meta.get('number_of_episodes') %}<span><strong>{{ item.meta.number_of_episodes }}</strong> episodes</span>{% endif %}
+      {% if item.meta.get('created_by') %}<span>Created by {% for p in item.meta.created_by %}{% if p.id %}<a class="text-link" href="{{ url_for('person',pid=p.id) }}">{{ p.name }}</a>{% else %}<strong>{{ p.name }}</strong>{% endif %}{{ ', ' if not loop.last }}{% endfor %}</span>{% endif %}
+    </div>
+    {{ caller() }}
+  </div>
+</div>
+{% endmacro %}
+{% macro cast(item) %}
+{% set credits=item.meta.get('credits') or {} %}
+{% for group,title,role in [('cast','Cast','acting'),('crew','Directors','directing')] %}
+{% set people=credits.get(group, []) if group=='cast' else credits.get('crew', [])|selectattr('job','equalto','Director')|list %}
+{% if people %}<section class="cast-section"><div class="section-heading"><h2>{{ title }}</h2><span>{{ people|length }} people</span></div><div class="cast-list">
+{% for p in people[:8] %}{{ person_tile(p,role) }}{% endfor %}</div>
+{% if people|length>8 %}<details class="more-people"><summary>View all {{ title|lower }} ({{ people|length }})</summary><div class="cast-list">{% for p in people[8:] %}{{ person_tile(p,role) }}{% endfor %}</div></details>{% endif %}</section>{% endif %}
+{% endfor %}
+{% if not credits.get('crew') %}<p class="help">Director credits are not available for this series yet.</p>{% endif %}
+{% endmacro %}
+{% macro person_tile(p,role) %}
+{% if p.id %}<a class="cast-person" href="{{ url_for('person',pid=p.id,role=role) }}">{% else %}<div class="cast-person">{% endif %}
+{% if image_url(p.profile_path) %}<img loading="lazy" src="{{ image_url(p.profile_path,'w185') }}" alt="">{% else %}<span class="avatar" aria-hidden="true">{{ p.name[:1] }}</span>{% endif %}<div><strong>{{ p.name }}</strong><small>{{ p.character if role=='acting' else 'Director' }}</small></div>
+{% if p.id %}</a>{% else %}</div>{% endif %}
+{% endmacro %}

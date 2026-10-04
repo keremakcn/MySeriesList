@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}{{ person.name }} · Discover{% endblock %}
+{% block content %}
+<a class="back" href="/search">← Discover series</a>
+<section class="hero person-hero">
+  <div class="hero-art">{% if image_url(person.profile_path) %}<img src="{{ image_url(person.profile_path) }}" alt="{{ person.name }}">{% else %}<span class="poster-placeholder"><strong>{{ person.name[:1] }}</strong></span>{% endif %}</div>
+  <div class="hero-copy"><p class="eyebrow">{{ {'Acting':'ACTOR', 'Directing':'DIRECTOR'}.get(person.known_for_department,person.known_for_department or 'TV CREDITS') }}</p><h1>{{ person.name }}</h1>{% if person.place_of_birth %}<p class="muted">{{ person.place_of_birth }}</p>{% endif %}{% if person.biography %}<details class="biography"><summary>About {{ person.name }}</summary><p>{{ person.biography }}</p></details>{% endif %}</div>
+</section>
+<div class="section-heading"><h2>Series &amp; TV credits</h2><span>{{ total }} series</span></div>
+<nav class="season-tabs" aria-label="Filter credits">{% for value,label in [('all','All credits'),('acting','Acting'),('directing','Directing')] %}<a class="button {{ 'selected' if role==value else '' }}" {% if role==value %}aria-current="page"{% endif %} href="{{ url_for('person',pid=person.id,role=value) }}">{{ label }}</a>{% endfor %}</nav>
+<div class="grid filmography">{% for item in items %}{% include '_result_card.html' %}{% else %}<div class="empty"><h2>No credits found.</h2><p>TMDB has no series listed for this filter.</p></div>{% endfor %}</div>
+{% if pages>1 %}<nav class="pagination" aria-label="Credit pages">{% if page>1 %}<a class="button" href="{{ url_for('person',pid=person.id,role=role,page=page-1) }}">← Previous</a>{% endif %}<span>{{ page }} / {{ pages }}</span>{% if page<pages %}<a class="button" href="{{ url_for('person',pid=person.id,role=role,page=page+1) }}">Next →</a>{% endif %}</nav>{% endif %}
+{% endblock %}

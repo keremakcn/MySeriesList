@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% from '_components.html' import hero with context %}
+{% block title %}{{ item.title }} · Your library{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a class="back" href="/">← Your library</a><a class="text-link" href="{{ url_for('catalog',tid=item.tmdb_id) }}">Explore cast &amp; details ↗</a></div>
+{% call hero(item) %}<div class="hero-actions"><span class="status-pill">{{ item.status }}</span>{% if item.favorite %}<span class="favorite-label">★ A favorite</span>{% endif %}<form method="post" action="{{ url_for('refresh',sid=item.id) }}">{{ csrf() }}<button class="quiet" data-busy-label="Refreshing…">↻ Refresh series info</button></form></div>{% endcall %}
+<div class="detail-grid">
+<section>
+  <div id="up-next">{% include "_up_next.html" %}</div>
+  <div class="section-heading"><h2>Your episodes</h2><span>One chapter at a time</span></div>
+  <p class="help">Open a season to see all its episodes. Future episodes stay unmarked. Refresh a season to check for new releases.</p>
+  {% for season in seasons %}{% set season_episodes=episodes|selectattr('season','equalto',season.number)|list %}{% set watched=season_episodes|selectattr('watched_at')|list|length %}
+  <details class="season" id="season-{{ season.number }}" data-loaded="{{ season.loaded }}" data-url="{{ url_for('load_season',sid=item.id,number=season.number) }}" {% if loop.first %}open{% endif %}>
+    <summary><span>{{ season.name }}{% if season.number==0 %} <small>Specials</small>{% endif %}</span><span class="season-count">{{ (watched|string + ' / ' + season_episodes|length|string + ' watched') if season.loaded else 'Not loaded' }}</span></summary>
+    <div class="season-feedback" role="status" aria-live="polite"></div>
+    <div class="season-body">{% include "_season_body.html" %}</div>
+  </details>{% else %}<p class="muted">No seasons available. Refresh series info to check for updates.</p>{% endfor %}
+</section>
+<section class="panel journal"><p class="eyebrow">JUST FOR YOU</p><h2>Your journal</h2><p class="help">A place for everything you want to remember.</p>
+<form method="post" action="{{ url_for('save',sid=item.id) }}" data-journal-form>{{ csrf() }}<input type="hidden" name="progress_version" value="{{ item.progress_version }}"><input type="hidden" name="complete_all" value="0">
+  <label>Status<select name="status">{% for status in statuses %}<option {% if item.status==status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></label>
+  <p class="help" id="completion-help" {% if item.status != "Completed" %}hidden{% endif %}>Changing to Completed marks every aired episode, including specials, as watched when saved. Future and undated episodes stay unmarked.</p>
+  <label>Your rating<select name="rating"><option value="">Not rated</option>{% for i in range(1,11) %}<option value="{{ i }}" {% if item.rating==i %}selected{% endif %}>{{ i }}/10</option>{% endfor %}</select></label>
+  <label class="check"><input type="checkbox" name="favorite" value="1" {% if item.favorite %}checked{% endif %}> Favorite series</label>
+  <label>Your private notes<textarea name="note" rows="7" maxlength="10000" placeholder="What stayed with you?">{{ item.note }}</textarea></label><div class="form-feedback {{ 'error' if save_error else '' }}" role="status">{{ save_error or '' }}</div><button class="primary full-width">Save journal</button>
+</form>
+<details class="remove-section"><summary>Manage this series</summary><p class="help">Remove it from your library. Your notes and progress can be restored with Undo.</p><form method="post" action="{{ url_for('delete',sid=item.id) }}">{{ csrf() }}<button class="danger full-width">Remove from library</button></form></details>
+</section>
+</div>
+<section id="series-people" {% if not item.meta.get("credits_complete") %}data-people-url="{{ url_for('refresh',sid=item.id) }}"{% endif %}>{% include "_people.html" %}</section>
+{% endblock %}

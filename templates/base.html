@@ -1,0 +1,30 @@
+{% from '_components.html' import csrf with context %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111318"><title>{% block title %}MySeriesList{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static',filename='branding/series-watchlist.ico') }}" sizes="any">
+  <link rel="stylesheet" href="{{ url_for('static',filename='style.css',v=app_version) }}">
+  <script defer src="{{ url_for('static',filename='app.js',v=app_version) }}"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<aside class="sidebar">
+  <a class="brand" href="/" aria-label="MySeriesList home"><img class="brand-logo" src="{{ url_for('static',filename='branding/series-watchlist-256.png') }}" width="44" height="44" alt=""><span>MySeries<strong>List<span>.</span></strong></span></a>
+  <p class="eyebrow nav-caption">YOUR SMALL SCREEN</p>
+  <nav aria-label="Main navigation">
+    <a href="/" {% if request.endpoint in ['library','detail'] %}aria-current="page"{% endif %}><span aria-hidden="true">▥</span> Your library</a>
+    <a href="/search" {% if request.endpoint in ['search','catalog','person'] %}aria-current="page"{% endif %}><span aria-hidden="true">⌕</span> Discover</a>
+    <a href="/settings" {% if request.endpoint=='settings' %}aria-current="page"{% endif %}><span aria-hidden="true">⚙</span> Settings</a>
+  </nav>
+  <div class="sidebar-card"><span class="eyebrow">ONE MORE EPISODE</span><p>Great stories.<br>Your own pace.</p><a href="/search">Find your next series ↗</a></div>
+  <div class="private"><span class="local-dot"></span> A journal of your own<small>Saved on this device</small></div>
+</aside>
+<main id="main" tabindex="-1">
+  <header class="top"><span>Good stories. <span class="muted">Kept close.</span></span><a href="/search">Find a series <kbd>Ctrl K</kbd></a></header>
+  {% for category,message in get_flashed_messages(with_categories=true) %}<div class="notice {{ category }}" role="status"><span>{{ message }}</span><button class="icon-button" data-dismiss aria-label="Dismiss notification">×</button></div>{% endfor %}
+  {% block content %}{% endblock %}
+  <footer><span>Made for the stories that stay with you.</span><span>MySeriesList · {{ app_version }}</span></footer>
+</main>
+</body></html>

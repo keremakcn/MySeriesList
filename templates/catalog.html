@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% from '_components.html' import hero, cast, add_button with context %}
+{% block title %}{{ item.title }} · Discover{% endblock %}
+{% block content %}
+<a class="back" href="/search?q={{ item.title|urlencode }}">← Discover series</a>
+{% call hero(item) %}<div class="hero-actions">{{ add_button(item.tmdb_id,sid) }}<span class="help">{{ 'Continue your journal in your library.' if sid else 'Take a look around. Adding is always your choice.' }}</span></div>{% endcall %}
+{{ cast(item) }}
+<section class="season-browser"><div class="section-heading"><h2>Explore the seasons</h2><span>No library entry required</span></div><div class="season-tabs">
+{% for season in seasons %}<a class="button {{ 'selected' if selected==season.season_number else '' }}" href="{{ url_for('catalog',tid=item.tmdb_id,season=season.season_number) }}#episodes">{{ season.name }} <small>{{ season.episode_count or 0 }} ep.</small></a>{% endfor %}
+</div><div id="episodes">
+{% if selected is not none %}
+{% for ep in episodes %}<article class="episode preview-episode"><div><small>EPISODE {{ '%02d'|format(ep.episode_number) }} · {{ ep.air_date or 'Air date unknown' }}</small><strong>{{ ep.name }}</strong>{% if ep.overview %}<details class="spoiler"><summary>Show synopsis <span>Spoilers</span></summary><p>{{ ep.overview }}</p></details>{% endif %}</div></article>{% else %}<p class="muted">No episodes have been announced for this season.</p>{% endfor %}
+{% else %}<p class="season-prompt">Select a season to browse its episodes.</p>{% endif %}
+</div></section>
+{% endblock %}

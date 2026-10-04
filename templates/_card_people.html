@@ -1,0 +1,6 @@
+{% set credits=item.meta.get('credits') or {} %}
+{% set directors=credits.get('crew', [])|selectattr('job','equalto','Director')|list %}
+<div class="card-people">
+  <p><span>Cast</span> {% for p in credits.get('cast', [])[:2] %}{% if p.id %}<a href="{{ url_for('person',pid=p.id,role='acting') }}">{{ p.name }}</a>{% else %}{{ p.name }}{% endif %}{{ ', ' if not loop.last }}{% else %}<a href="{{ url_for('catalog',tid=item.tmdb_id) }}">Explore cast</a>{% endfor %}</p>
+  <p><span>Director</span> {% for p in directors[:1] %}{% if p.id %}<a href="{{ url_for('person',pid=p.id,role='directing') }}">{{ p.name }}</a>{% else %}{{ p.name }}{% endif %}{% else %}<a href="{{ url_for('catalog',tid=item.tmdb_id) }}">Explore directors</a>{% endfor %}</p>
+</div>
